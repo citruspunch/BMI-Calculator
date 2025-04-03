@@ -14,11 +14,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
 fun InputForm () {
     var weight by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
-    var bmi by remember { mutableStateOf(0.0) }
+    var bmi by remember { mutableDoubleStateOf(0.0) }
 
     Column (horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.padding(10.dp))
@@ -92,7 +92,7 @@ fun InputForm () {
 
 fun calculateBMI (weight: Double, height: Double): Double {
     val heightInMeters = height / 100
-    val weightInKilograms = weight / 2.2
+    val weightInKilograms = weight / 2.20462
     return weightInKilograms / (heightInMeters * heightInMeters)
 }
 
