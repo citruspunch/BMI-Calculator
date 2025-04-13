@@ -13,15 +13,19 @@ This is a simple Body Mass Index (BMI) calculator built using Jetpack Compose. I
 
 ## Setup Instructions
 
-1. **Open in Android Studio:**
+1. **Clone the Repository:**
+   ```bash 
+   https://github.com/citruspunch/BMI-Calculator.git
+   ```
+2. **Open in Android Studio:**
    - Launch Android Studio and select **"Open an Existing Project"**
    - Navigate to the project directory and open it
 
-2. **Build the project:**
+3. **Build the project:**
    - Android Studio will typically start building automatically. If not:
-     - Go to **Build → Make Project**
+     - Go to **Build → Assemble Project**
 
-3. **Run the app:**
+4. **Run the app:**
    - Connect a physical Android device or start an emulator
    - Press the green **"Run"** button in the toolbar to launch the app
 
