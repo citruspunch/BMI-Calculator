@@ -5,9 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -35,10 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bmicalculator.ui.theme.BMICalculatorTheme
@@ -91,48 +90,75 @@ fun InputForm() {
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.padding(10.dp))
-        Row(
+        ElevatedCard(
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 6.dp
+            ),
             modifier = Modifier
-                .size(width = 300.dp, height = 120.dp)
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .size(width = 330.dp, height = 160.dp).padding(horizontal = 10.dp)
         ) {
-            Box(
-                modifier = Modifier.size(width = 150.dp, height = 150.dp),
-                contentAlignment = Alignment.Center
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(15.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 OutlinedTextField(
                     value = weight,
+                    singleLine = true,
                     onValueChange = {
                         weight = it
-                        isWeightValid = it.toDoubleOrNull() != null
+                        val value = it.toDoubleOrNull()
+                        isWeightValid = value != null && isValidWeight(value, currentTypeOfWeight)
                     },
-                    label = { Text("Weight") }
+                    label = { Text("Weight") },
+                    isError = !isWeightValid,
+                    supportingText = {
+                        if (!isWeightValid) Text("Enter a valid weight (${currentTypeOfWeight})")
+                    }
                 )
-            }
-            Spacer(modifier = Modifier.padding(6.dp))
-            Box(
-                modifier = Modifier.size(width = 150.dp, height = 150.dp),
-                contentAlignment = Alignment.Center
-            ) {
+                Spacer(modifier = Modifier.padding(6.dp))
                 SingleChoiceSegmentedButton(
                     options = weightOptions,
                     onChange = { currentTypeOfWeight = it })
             }
         }
-        OutlinedTextField(
-            value = height,
-            onValueChange = {
-                height = it
-                isHeightValid = it.toDoubleOrNull() != null
-            },
-            label = { Text("Height") }
-        )
-        Spacer(modifier = Modifier.padding(6.dp))
-        SingleChoiceSegmentedButton(
-            options = heightOptions,
-            onChange = { currentTypeOfHeight = it })
+        Spacer(modifier = Modifier.padding(10.dp))
+        ElevatedCard(
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 6.dp
+            ),
+            modifier = Modifier
+                .size(width = 330.dp, height = 160.dp).padding(horizontal = 10.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                OutlinedTextField(
+                    value = height,
+                    singleLine = true,
+                    onValueChange = {
+                        height = it
+                        val value = it.toDoubleOrNull()
+                        isHeightValid = value != null && isValidHeight(value, currentTypeOfHeight)
+                    },
+                    label = { Text("Height") },
+                    isError = !isHeightValid,
+                    supportingText = {
+                        if (!isHeightValid) Text("Enter a valid height (${currentTypeOfHeight})")
+                    }
+                )
+                Spacer(modifier = Modifier.padding(6.dp))
+                SingleChoiceSegmentedButton(
+                    options = heightOptions,
+                    onChange = { currentTypeOfHeight = it })
+            }
+        }
         Spacer(modifier = Modifier.padding(10.dp))
         ElevatedButton(
             enabled = isWeightValid && isHeightValid,
@@ -144,13 +170,30 @@ fun InputForm() {
                     currentTypeOfHeight
                 )
             }) {
-            Text("Calculate BMI")
+            Text("Calculate BMI", style = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold), modifier = Modifier.padding(7.dp))
         }
         Spacer(modifier = Modifier.padding(10.dp))
         if (bmi > 0) BMIResult(bmi)
     }
 }
 
+fun isValidWeight(value: Double, unit: String): Boolean {
+    return when (unit) {
+        "Kg" -> value in 20.0..220.0
+        "Lbs" -> value in 44.0..400.0
+        else -> false
+    }
+}
+
+fun isValidHeight(value: Double, unit: String): Boolean {
+    return when (unit) {
+        "Cm" -> value in 100.0..250.0
+        "Ft" -> value in 3.0..8.0
+        else -> false
+    }
+}
+
+// Funcion para mostrar el boton de seleccion de opciones
 @Composable
 fun SingleChoiceSegmentedButton(
     options: List<String>,
@@ -223,12 +266,30 @@ fun BMIResult(bmi: Double) {
         }
     }
     val bmiFormat = String.format(Locale.US, "%.2f", bmi)
+    val bmiBackgroundColor = when (category) {
+        "Normal" -> Color(0xFFDFF5E1)
+        "Underweight" -> Color(0xFFE0F7FA)
+        "Overweight" -> Color(0xFFFFF9C4)
+        "Obese" -> Color(0xFFFFCDD2)
+        else -> Color.LightGray
+    }
+    val bmiColor = when (category) {
+        "Underweight" -> Color(0xFF03A9F4)
+        "Normal" -> Color(0xFF4CAF50)
+        "Overweight" -> Color(0xFFFFC107)
+        "Obese" -> Color(0xFFF44336)
+        else -> MaterialTheme.colorScheme.primary
+    }
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         ),
         modifier = Modifier
-            .size(width = 300.dp, height = 200.dp)
+            .size(width = 300.dp, height = 200.dp),
+
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = bmiBackgroundColor
+        )
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -243,13 +304,13 @@ fun BMIResult(bmi: Double) {
                 style = TextStyle(
                     fontSize = 35.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = bmiColor
                 )
             )
             Spacer(modifier = Modifier.padding(6.dp))
-            Text(category, style = TextStyle(fontSize = 20.sp))
+            Text(category, style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold))
             Spacer(modifier = Modifier.padding(6.dp))
-            Text(description, style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center))
+            Text(description, style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center, fontStyle = FontStyle.Italic))
         }
     }
 
